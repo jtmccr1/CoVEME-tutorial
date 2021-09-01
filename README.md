@@ -46,15 +46,15 @@ can cope with alignments of tens of thousands of sequences.
 Before we begin - this analysis requires a rooted precalculated tree with branchlengths in substitution space. For this tutorial we'll be using a 1,000 tip tree built with iqtree2 from gisaid data up until July 2020.
 
 
-To start we will use beauti to generate a standard BEAST analysis. We will then adapt this xml to run our "Thorney" analysis.
-Although we won't be using an alignment in our likelihood calculations, beauti requires one to load the taxa.
+To start we will use BEAUTi  to generate a standard BEAST analysis. We will then adapt this xml to run our "Thorney" analysis.
+Although we won't be using an alignment in our likelihood calculations, BEAUTi requires one to load the taxa.
 There is a mock alignment in the data directory, which contains a single base for each sequence. 
-We will fire up Beauti and import it in the
+We will fire up BEAUTi  and import it in the
 partitions panel. 
 
 Next we will assign dates to the taxa. In the tips panel select `use tip dates` and then `parse dates`. The dates follow the last `|` in the taxa label.
 
-Because we won't be using we can leave the default HKY site model in the site panel. 
+Because we won't be using the alignment anyway we can leave the default HKY site model in the site panel. 
 
 For this analysis we'll be using a strict clock model (although any could be used). Select that in the clocks panel.
 
@@ -322,7 +322,7 @@ with `<intervals>`. The example below is for our skygrid coalescent model.
 	</gmrfSkyGridLikelihood>
 ```
 
-Because this is a prerelease and represents in progress work in progress at the momenet we also need
+Because this is a prerelease and represents in progress work at the momenet we also need
 to use a different operator on the skygridPopulation sizes.
 ```xml
 
@@ -374,7 +374,7 @@ The xml can be generated with
 beastgen -date_order -1 -date_prefix "|" -date_precision ./InprogressFiles/1K_SARS-CoV-2.mock.template  ./data/1K_SARS-CoV-2.nexus 1K_SARS-CoV-2_SG-thorney.xml 
 ```
 
-This has the added benefit of reading the taxa out of the nexus file and by passes the need for a fasta file.
+This has the added benefit of reading the taxa out of the nexus file and bypasses the need for a fasta file.
 
 
 The template, `SARS-CoV-2.mock.template`, is small and easy to edit. It can also be used to generate similar analysis on much
