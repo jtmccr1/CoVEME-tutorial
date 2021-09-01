@@ -183,8 +183,10 @@ below.
 
 <thorneyTreeLikelihood id="treeLikelihood">
 	<constrainedTreeModel idref="treeModel"/>
-	<strictClockBranchRates idref="branchRates"/>
-    <branchLengthLikelihood id="branchLengthLikelihood" scale="29903.0"/>
+	
+    <poissonBranchLengthLikelihood id="branchLengthLikelihood" scale="29903.0">
+    	<strictClockBranchRates idref="branchRates"/>
+	</poissonBranchLengthLikelihood>
 	
 	<constrainedBranchLengthProvider scale="29903.0"> 
 		<constrainedTreeModel idref="treeModel"/>

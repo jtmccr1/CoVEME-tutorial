@@ -156,9 +156,9 @@
 	<constrainedTreeModel idref="treeModel"/>
 	
     
-    
-    <branchLengthLikelihood id="branchLengthLikelihood" scale="29903.0"/>
-    <strictClockBranchRates idref="branchRates"/>
+    <poissonBranchLengthLikelihood id="branchLengthLikelihood" scale="29903.0">
+    	<strictClockBranchRates idref="branchRates"/>
+	</poissonBranchLengthLikelihood>
 	
 	<constrainedBranchLengthProvider scale="29903.0"> 
 		<constrainedTreeModel idref="treeModel"/>
