@@ -3151,12 +3151,9 @@
 	</treeDataLikelihood> -->
 <thorneyTreeLikelihood id="treeLikelihood">
 	<constrainedTreeModel idref="treeModel"/>
-	
-    
-    
-    <branchLengthLikelihood id="branchLengthLikelihood" scale="29903.0">
-        <strictClockBranchRates idref="branchRates"/>
-    <branchLengthLikelihood>
+
+    <branchLengthLikelihood id="branchLengthLikelihood" scale="29903.0"/>
+    <strictClockBranchRates idref="branchRates"/>
 	
 	<constrainedBranchLengthProvider scale="29903.0"> 
 		<constrainedTreeModel idref="treeModel"/>
