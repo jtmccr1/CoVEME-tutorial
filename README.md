@@ -46,9 +46,10 @@ can cope with alignments of tens of thousands of sequences.
 Before we begin - this analysis requires a rooted precalculated tree with branchlengths in substitution space. For this tutorial we'll be using a 1,000 tip tree built with iqtree2 from gisaid data up until July 2020.
 
 
-To start we will use beauti to generate a standard BEAST analysis. We will then adapt this xml to run "Thorney" analysis.
+To start we will use beauti to generate a standard BEAST analysis. We will then adapt this xml to run our "Thorney" analysis.
 Although we won't be using an alignment in our likelihood calculations, beauti requires one to load the taxa.
-There is a mock alignment in the data directory. Which contains a single base for each sequence. Import it in the
+There is a mock alignment in the data directory, which contains a single base for each sequence. 
+We will fire up Beauti and import it in the
 partitions panel. 
 
 Next we will assign dates to the taxa. In the tips panel select `use tip dates` and then `parse dates`. The dates follow the last `|` in the taxa label.
@@ -57,24 +58,26 @@ Because we won't be using we can leave the default HKY site model in the site pa
 
 For this analysis we'll be using a strict clock model (although any could be used). Select that in the clocks panel.
 
-We will be using a Skygrid with weekly gridpoints. For this dataset, a skygrid cutoff of 0.75 with 39 gridpoints will suit.
+We will be using a Skygrid with weekly gridpoints. For this dataset, a skygrid cutoff of 0.75 with 39 gridpoints will do the trick.
 
-Next we'll import our starting tree and selected it as the user specified tree.
+Next we'll import our starting tree and selected it as the user specified tree. This can be done using File>Import Data.
 
 For now we'll leave all the priors and operators and export our xml. Next we'll adapt this xml 
 to use the new likelihood and data structures.
 
 ## An alternative likelihood function
 
-Starting from out standard BEAUTi-generated xml you can delete the `<alignment>` block and instead specify a 
-"data tree" and a starting tree that is topologically consistent (every clade in the data tree must be present in the starting tree).
+Starting from our standard BEAUTi-generated xml you can delete the `<alignment>` and `<patterns/>` block and instead specify a 
+"data tree" and a starting tree that are topologically consistent (every clade in the data tree must be present in the starting tree).
 
 For this analyis we already provided a starting tree with mutations in substitution space. We can copy this tree and call it dataTree as below.
-
+NB: Note we set the rescaled root height equal to 1 year to provide a non Infinite starting likelihood
 ```xml
-<newick id="startingTree" usingDates="true">
-	((taxa1|2020-02-17,...);
-</newick>
+	<rescaledTree id="startingTree" height="1.0">
+        <newick  usingDates="true">
+	        ((taxa1|2020-02-17,...);
+        </newick>
+    </rescaledTree>
 
 <newick id="dataTree" usingDates="false" usingHeights="true">
 	((taxa1|2020-02-17,...);
@@ -180,11 +183,9 @@ below.
 
 <thorneyTreeLikelihood id="treeLikelihood">
 	<constrainedTreeModel idref="treeModel"/>
-			 
-    <branchLengthLikelihood id="branchLengthLikelihood" scale="29903.0">
-		<strictClockBranchRates id="branchRates"/>
-	</branchLengthLikelihood>
-		
+	<strictClockBranchRates idref="branchRates"/>
+    <branchLengthLikelihood id="branchLengthLikelihood" scale="29903.0"/>
+	
 	<constrainedBranchLengthProvider scale="29903.0"> 
 		<constrainedTreeModel idref="treeModel"/>
 		<dataTree>
@@ -217,24 +218,24 @@ no polytomies over which to sample). In that case only the node height operators
     <treeModel idref="treeModel"/>
 </nodeHeightOperator>           
 
-<nodeHeightOperator type="uniform" weight="10">
-    <constrainedTreeModel idref="treeModel"/>
+<nodeHeightOperator type="uniform" weight="30">
+    <treeModel idref="treeModel"/>
 </nodeHeightOperator>
 		
-<uniformSubtreePruneRegraft weight="10">
-    <constrainedTreeModel idref="treeModel"/>
+<uniformSubtreePruneRegraft weight="30">
+    <treeModel idref="treeModel"/>
 </uniformSubtreePruneRegraft>
 		
-<narrowExchange weight="10">
-    <constrainedTreeModel idref="treeModel"/>
+<narrowExchange weight="30">
+    <treeModel idref="treeModel"/>
 </narrowExchange>
 		
 <wideExchange weight="10">
-    <constrainedTreeModel idref="treeModel"/>
+    <constratreeModelinedTreeModel idref="treeModel"/>
 </wideExchange>
 		
 <wilsonBalding weight="10">
-    <constrainedTreeModel idref="treeModel"/>
+    <treeModel idref="treeModel"/>
 </wilsonBalding>
 ```
 		
@@ -321,6 +322,18 @@ with `<intervals>`. The example below is for our skygrid coalescent model.
 	</gmrfSkyGridLikelihood>
 ```
 
+Because this is a prerelease and represents in progress work in progress at the momenet we also need
+to use a different operator on the skygridPopulation sizes.
+```xml
+
+		<!-- <gmrfGridBlockUpdateOperator scaleFactor="1.0" weight="2">
+			<gmrfSkyrideLikelihood idref="skygrid"/>
+		</gmrfGridBlockUpdateOperator> -->
+		<gmrfSkygridBlockUpdateOperator scaleFactor="1.1" weight="10">
+			<gmrfSkygridLikelihood idref="skygrid"/>
+		</gmrfSkygridBlockUpdateOperator>
+```
+
 ## Managing large xmls with beastgen
 
 These changes can be made to any xml generated by BEAUti; however, editing large xmls is clunky and tedious. An alternative is to use [BEASTGen](http://beast.community/beastgen), a small command line
@@ -344,10 +357,11 @@ To adapt out xml into a flexible template that can be used with a new dataset we
 We can then replace the starting and data trees with the following code which will accept a tree from 
 commandline and insert it into the xml.
 ```xml
-	<newick id="startingTree" usingDates="true">
-		${tree}
-	</newick>
-
+    <rescaledTree id="startingTree" height="1.0">
+        <newick usingDates="true">
+            ${tree}
+        </newick>
+    </rescaledTree>
 	
 	<newick id="dataTree" usingDates="false" usingHeights="true">
 		${tree}
@@ -357,7 +371,7 @@ And we can save it as SARS-CoV-2.mock.template
 
 The xml can be generated with
 ```bash
-beastgen -date_order -1 -date_prefix "|" -date_precision -D SARS-CoV-2.mock.template 1K_SARS-CoV-2.nexus 1K_SARS-CoV-2_SG-thorney.xml
+beastgen -date_order -1 -date_prefix "|" -date_precision ./InprogressFiles/1K_SARS-CoV-2.mock.template  ./data/1K_SARS-CoV-2.nexus 1K_SARS-CoV-2_SG-thorney.xml 
 ```
 
 This has the added benefit of reading the taxa out of the nexus file and by passes the need for a fasta file.
